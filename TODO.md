@@ -9,6 +9,7 @@ track our progress and keep a record of everyone’s contributions for the midte
 
 * [ ]	Collect images of orange traffic cones and construction signs
 * [ ]	Annotate objects and prepare positive/negative samples
+* [ ]	Apply image denoising (NLM) as common preprocessing
 * [ ]	Prepare candidate regions / sliding windows
 
 2. Feature Extraction
