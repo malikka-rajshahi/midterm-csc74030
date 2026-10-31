@@ -1,0 +1,4 @@
+group,best_single_window,stride_fraction,coverage_iou_050,windows_per_image
+cone_only,8x16,0.25,0.4230769230769231,82763.4
+sign_only,16x16,0.25,0.26785714285714285,42048.6
+both,8x16,0.25,0.39361702127659576,87039.0

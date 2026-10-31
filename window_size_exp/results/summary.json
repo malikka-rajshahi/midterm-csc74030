@@ -1,0 +1,21 @@
+{
+  "images": 96,
+  "valid_annotations": 228,
+  "excluded_annotations": 1,
+  "image_groups": {
+    "cone_only": 40,
+    "sign_only": 40,
+    "both": 16
+  },
+  "annotation_groups": {
+    "cone_only": 78,
+    "sign_only": 56,
+    "both": 94
+  },
+  "class_counts": {
+    "cone": 152,
+    "sign": 76
+  },
+  "data": "/Users/yingying/Downloads/midterm-csc74030-main/Test Dataset/validation",
+  "note": "Annotation proposal coverage only; not detector recall. Original predictions are uncorrected; duplicates retained."
+}
