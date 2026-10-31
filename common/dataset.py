@@ -15,14 +15,25 @@ DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 DATASET_DIR = DATA_DIR / "roadwork_cones_dataset"
 SPLIT_FILE = DATA_DIR / "split.json"
 SEED = 42
+# Dataset label -> our class (the Vistas template classes). vertical_pannel has no templates, so it is dropped.
+LABEL_MAP = {"cone": "cone", "roadworks": "sign"}
 
 
 def load_dataset():
-    """Download and extract the dataset, then return its annotations."""
-    zip_path = hf_hub_download(REPO_ID, "roadwork_cones_dataset.zip", repo_type="dataset", local_dir=DATA_DIR)
-    with zipfile.ZipFile(zip_path) as z:
-        z.extractall(DATA_DIR)
+    """Download and extract the dataset (only if it isn't on disk yet), then return its annotations."""
+    if not (DATASET_DIR / "annotations.parquet").exists():
+        zip_path = hf_hub_download(REPO_ID, "roadwork_cones_dataset.zip", repo_type="dataset", local_dir=DATA_DIR)
+        with zipfile.ZipFile(zip_path) as z:
+            z.extractall(DATA_DIR)
+        Path(zip_path).unlink()
     return pd.read_parquet(DATASET_DIR / "annotations.parquet")
+
+
+def map_labels(df):
+    """Keep only labels in LABEL_MAP and add a `cls` column with our class name (cone / sign)."""
+    df = df[df["label"].isin(LABEL_MAP)].copy()
+    df["cls"] = df["label"].map(LABEL_MAP)
+    return df.reset_index(drop=True)
 
 
 def split_data(df, val_ratio=0.2, seed=SEED):

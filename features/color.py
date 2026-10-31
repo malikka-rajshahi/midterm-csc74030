@@ -5,6 +5,8 @@ and the channel histograms are concatenated into one feature vector.
 """
 import numpy as np
 
+from common.preprocessing import to_hsv, to_lab
+
 RGB_BINS = (16, 16, 16)
 RGB_CHANNEL_MAX = (256, 256, 256)
 # 18 hue bins, 8 saturation bins, 8 value bins. OpenCV hue runs 0-179 (degrees / 2), so each hue bin is 20 degrees
@@ -13,6 +15,14 @@ HSV_CHANNEL_MAX = (180, 256, 256)
 # 8 lightness bins, 16 bins each for a and b (orange shows up as high a and high b)
 LAB_BINS = (8, 16, 16)
 LAB_CHANNEL_MAX = (256, 256, 256)
+
+# Color space name -> how to get there from a BGR image (cv2.imread), and how to histogram it.
+# channel_histograms(convert(img), bins, channel_max) gives the same result as that space's *_histogram function.
+SPACES = {
+    "rgb": dict(convert=lambda img: img[..., ::-1], bins=RGB_BINS, channel_max=RGB_CHANNEL_MAX),
+    "hsv": dict(convert=to_hsv, bins=HSV_BINS, channel_max=HSV_CHANNEL_MAX),
+    "lab": dict(convert=to_lab, bins=LAB_BINS, channel_max=LAB_CHANNEL_MAX),
+}
 
 
 def channel_histograms(img, bins, channel_max):
@@ -50,17 +60,3 @@ def lab_histogram(img, bins=LAB_BINS):
     """
     return channel_histograms(img, bins, LAB_CHANNEL_MAX)
 
-
-def window_histograms(img, size, histogram, stride=None):
-    """Histogram of every size x size window of img, sliding by stride (default size // 2, half overlap).
-
-    histogram: rgb_histogram (img is BGR), hsv_histogram (img is HSV) or lab_histogram (img is Lab).
-    Returns (boxes, hists): boxes[i] = (x0, y0, x1, y1) of window i and hists[i] its histogram.
-    """
-    stride = stride or size // 2
-    rows, cols = img.shape[:2]
-    boxes = np.array([(x, y, x + size, y + size)
-                      for y in range(0, rows - size + 1, stride)
-                      for x in range(0, cols - size + 1, stride)])
-    hists = np.array([histogram(img[y0:y1, x0:x1]) for x0, y0, x1, y1 in boxes])
-    return boxes, hists

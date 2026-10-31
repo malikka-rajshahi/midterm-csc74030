@@ -1,4 +1,4 @@
-"""Preprocessing shared by every feature: noise reduction.
+"""Preprocessing shared by every feature: noise reduction and color space conversions.
 
 Works the same on Vistas template crops and full scene images.
 """
@@ -40,3 +40,4 @@ def to_gray(img):
     Luminance 0.299 R + 0.587 G + 0.114 B, the same formula as PIL's convert('L').
     """
     return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
