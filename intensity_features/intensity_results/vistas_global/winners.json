@@ -1,0 +1,12 @@
+{
+  "cone": {
+    "feature": "Variance",
+    "threshold": 682.2053792730977,
+    "calibration_balanced_accuracy": 0.7228878648233488
+  },
+  "sign": {
+    "feature": "Variance",
+    "threshold": -682.2053792730977,
+    "calibration_balanced_accuracy": 0.7228878648233488
+  }
+}

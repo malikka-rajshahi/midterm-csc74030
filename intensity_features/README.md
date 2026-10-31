@@ -1,37 +1,34 @@
-# Intensity Notebooks
+# Intensity — whole-object grayscale features
 
-## 01 — Feature Comparison
+No sliding windows, NMS or IoU matching. Each object produces 12 feature methods: Histogram, Mean, Median, Mode, Variance, Std/RMS contrast, Trimmed mean, Entropy, Gray-range fraction, Entropy × Contrast, Normalized contrast, Spatial entropy difference. The last three are engineered additions, not slide formulas. Formulas and conventions are in 01/02.
 
-Compare annotation regions with same-size unannotated patches, separately for `cone_only`, `sign_only`, and `both`.
+## Data and task
 
-- **Baseline:** normalized Histogram, Mean, Variance, Standard Deviation / RMS Contrast, Median, Mode, Trimmed Mean, Entropy, Gray-range Fraction.
-- **Combinations:** Mean + Variance; Variance + Entropy; Mean + Std + Entropy.
-- **Engineered:** Entropy × Contrast; Normalized Contrast (`std / (mean + 1)`); Spatial Entropy Difference (`|H(top) − H(bottom)|`).
+Read only `vistas_templates/templates.csv`, `crops/` and `masks/`. RGB is converted to 8-bit grayscale first. `mask` uses all supplied object-mask pixels; `crop` uses all original rectangular crop pixels, including background. No mask-complement classifier or matched pixel subsampling is used.
 
-Metrics: image-separated four-fold Balanced Accuracy; descriptive ROC-AUC and distribution overlap for scalar features. No universal winner; spatial entropy difference reaches **65.0% crop accuracy for sign_only**, but does not improve full-image detection.
+The task is recognition of supplied cone/sign object ROIs: cone versus sign, reported separately by class. Opposite-class objects are negatives. This does not measure rejection of pure background, object localization or whole-scene detection. Supplied masks define a precise computation region relative to annotation; masks are eroded and are not guaranteed perfect semantic truth.
 
-## 02 — Validation Run
+Reference: 183 cone + 36 sign. Calibration: 60 cone + 11 sign. Held out: 77 cone + 35 sign. Source images are disjoint. Only template-role data supplies references and calibration; role=validation is independent evaluation.
 
-Multi-scale detection on all **120 validation images**, including negatives: template comparison → threshold → NMS. Compares Histogram, Entropy, and the three engineered features. Test is untouched.
+Clean mask-only references are fixed. Thresholds and one winner per class are selected on full calibration crops using source-balanced accuracy, then frozen before held-out mask/crop evaluation. Threshold ties prefer smaller absolute threshold; feature ties use declared feature order. Histogram distance follows the slide's max-denominator formula; scalar distance is absolute difference. Per-class decisions can both accept or reject; scores are not probabilities.
 
-## 03 — Validation Summary
+## Four notebooks
 
-| Feature | Precision | Recall | F1 |
-|---|---:|---:|---:|
-| Histogram | 0.025% | 2.19% | 0.050% |
-| Entropy | 0% | 0% | 0% |
-| Entropy × Contrast | 0% | 0% | 0% |
-| Normalized Contrast | 0.042% | 0.88% | 0.080% |
-| Spatial Entropy Difference | 0.020% | 0.44% | 0.038% |
+1. `01_Feature_Comparison.ipynb`: formulas, every object's feature values, class summaries and histogram distributions.
+2. `02_Validation_Run.ipynb`: all 12 calibration/held-out results, frozen best method per class, mask-free ROI inference helper.
+3. `03_Validation_Summary.ipynb`: readable comparison and selected winners.
+4. `04_Template_Diagnostics.ipynb`: paired background effects, input fractions, feature changes and exclusions.
 
-**Conclusion:** none is an effective detector in the current average-template pipeline. Crop-level differences do not establish detection performance. Metrics use class-matched, one-to-one IoU ≥ 0.5 and validation-selected thresholds; they are development results on uncorrected source annotations.
+Original filenames are retained for continuity. Each notebook includes reusable analysis functions and can run independently. Dependencies: numpy, pandas, pillow, matplotlib and Jupyter. Local/Colab PROJECT discovery is included.
 
-## 04 — Template Diagnostics
+## Results and inference
 
-Average-template path: **180 / 228** source boxes covered by sliding windows → **29** after top-1000 ranking → **16** after NMS → **6** after the max-100 output cap. Final one-to-one matching gives **5 true positives**; coverage and detection recall differ.
+Output: `intensity_results/vistas_global/`, with separate `cone/` and `sign/` folders. `object_features.csv` stores all 12 feature values for every object/view; histogram vectors are also expanded into 256 columns in per-class `histograms.csv`. `statistics_summary.csv` contains scalar descriptive summaries. `all_method_scores.csv` gives every method's calibration/held-out metrics. `winners.json` stores the frozen selection, and `model.json` stores reference vectors and thresholds.
 
-**Diagnosis:** most targets are lost during scoring/ranking, followed by NMS/output limits. Keeping top 10,000 candidates or using 8 representative actual templates per class did not improve final F1. Next: test target-versus-background scoring before adding more intensity formulas.
+`predict_crop(path, cls)` consumes an object ROI, possibly containing background, without a mask. No NYC test images are read automatically. Input fingerprints detect changes to the manifest and crop/mask contents; set RUN_AGAIN=True in 02 after editing analysis code.
 
-## Use
+Spatial entropy retains mask positions and returns NaN if either vertical half contains no selected pixels. Invalid values are excluded and counts reported. Global entropy/histogram use 256 levels. Std uses population variance; trimming removes 10% per tail; mode ties choose the lowest gray level; fixed gray range is inclusive [64,192].
 
-Start with **03** for results. Code and saved results are embedded; no external `.py` files are required. Recomputing needs the original `Test Dataset/validation/` and `vistas_templates/` folders. Mount Google Drive in Colab and check `PROJECT`. In 02/04, set `RUN_AGAIN=True` to recompute; outputs go to `intensity_results/` outside this folder. The saved snapshot in 03 does not update automatically.
+Selecting a method on held-out results would bias the evaluation. Crop background is only a preliminary robustness check, not a simulation of arbitrary background or a final scene test. More background does not necessarily lower accuracy; effects are measured rather than assumed.
+
+A Chinese report covering all 12 methods and selected winners is saved at `intensity_results/vistas_global/RESULTS_中文.md`.

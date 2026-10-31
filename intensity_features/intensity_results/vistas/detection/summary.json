@@ -1,0 +1,84 @@
+{
+  "source": "/Users/yingying/Downloads/midterm-csc74030-main/vistas_templates",
+  "held_crops": 112,
+  "reference_crops": 219,
+  "calibration_crops": 71,
+  "selected_thresholds": {
+    "histogram": {
+      "cone": 0.1,
+      "sign": 0.35000000000000003
+    },
+    "entropy": {
+      "cone": 1.1,
+      "sign": 0.7000000000000001
+    },
+    "entropy_contrast": {
+      "cone": 53.483852284410794,
+      "sign": 0.0
+    },
+    "normalized_contrast": {
+      "cone": 0.0024668482895630344,
+      "sign": 0.024237644077692747
+    },
+    "spatial_entropy_difference": {
+      "cone": 0.003187849440508851,
+      "sign": 0.2976674919906427
+    }
+  },
+  "classes": [
+    "cone",
+    "sign"
+  ],
+  "bins": 32,
+  "geometries": [
+    [
+      8,
+      8
+    ],
+    [
+      8,
+      16
+    ],
+    [
+      16,
+      16
+    ],
+    [
+      16,
+      32
+    ],
+    [
+      24,
+      24
+    ],
+    [
+      24,
+      48
+    ],
+    [
+      32,
+      32
+    ],
+    [
+      32,
+      64
+    ],
+    [
+      48,
+      48
+    ],
+    [
+      48,
+      96
+    ],
+    [
+      64,
+      64
+    ],
+    [
+      64,
+      128
+    ]
+  ],
+  "note": "Held-out object crops, not full-scene detection. Calibration uses template-role sources only. Other-class crops are negatives; masks supply crop-local GT boxes."
+}

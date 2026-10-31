@@ -1,0 +1,50 @@
+{
+  "version": "global-mask-crop-v1",
+  "fingerprint": "976b22b939a5fd648de47b44f2dce0ef0476051184fa2ceb943ea663046857cb",
+  "winners": {
+    "cone": {
+      "feature": "Variance",
+      "threshold": 682.2053792730977,
+      "calibration_balanced_accuracy": 0.7228878648233488
+    },
+    "sign": {
+      "feature": "Variance",
+      "threshold": -682.2053792730977,
+      "calibration_balanced_accuracy": 0.7228878648233488
+    }
+  },
+  "splits": [
+    {
+      "usage": "calibration",
+      "class": "cone",
+      "count": 60
+    },
+    {
+      "usage": "calibration",
+      "class": "sign",
+      "count": 11
+    },
+    {
+      "usage": "held_out",
+      "class": "cone",
+      "count": 77
+    },
+    {
+      "usage": "held_out",
+      "class": "sign",
+      "count": 35
+    },
+    {
+      "usage": "reference",
+      "class": "cone",
+      "count": 183
+    },
+    {
+      "usage": "reference",
+      "class": "sign",
+      "count": 36
+    }
+  ],
+  "selection": "Highest source-balanced accuracy on complete-crop calibration data; ties use declared feature order.",
+  "target": "Per-class recognition of supplied cone/sign object crops, not background rejection or localization."
+}
