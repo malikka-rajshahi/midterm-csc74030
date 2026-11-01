@@ -1,0 +1,39 @@
+{
+  "scope": "12-image training development comparison; official test untouched",
+  "images": 12,
+  "duplicate_annotation_rows_removed": 8103,
+  "denoised": true,
+  "lowest_count_preserving_baseline": "blocks_dedup_0.8",
+  "selection_rule": "Fewest candidates with zero lost baseline-covered boxes at IoU 0.5; preliminary sample only.",
+  "annotation_sha256": "d3b1b109eea01196a3e39d4f792f2514b87a2c020a248ff50ec8acab5fffa2c1",
+  "window_widths": {
+    "small": [
+      16,
+      32,
+      64
+    ],
+    "balanced": [
+      16,
+      32,
+      64,
+      128,
+      256
+    ],
+    "context": [
+      32,
+      64,
+      128,
+      256,
+      512,
+      1024
+    ]
+  },
+  "height_width_ratios": [
+    0.5,
+    1.0,
+    2.0,
+    4.0
+  ],
+  "legacy_colors": true,
+  "green_rejection": null
+}

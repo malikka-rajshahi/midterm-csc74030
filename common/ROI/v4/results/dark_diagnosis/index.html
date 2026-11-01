@@ -1,0 +1,895 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>V4 dark GT stage diagnosis</title><style>body{font:16px system-ui;margin:24px}img{width:100%}td,th{padding:7px}</style>
+<h1>Where the dark GTs are lost</h1><p>The fixed dark population has 46 GTs; 22 are uncovered by the saved default. All 22/22 have zero actual red/orange support pixels. Native-resolution standard-HSV support is also zero in 22/22; resizing or denoising did not remove a previously qualifying native pixel in this cohort. Both default and dark enhancement produce zero GT-derived anchors and zero GT intersection at every box stage for these cases. In the denoised working image, 20 GT rectangles have no hue-band pixels; 2 contain hue-band pixels but none meet even S&gt;=0.25. Hue in low-saturation/dark pixels is unstable, and this does not prove the real object lacks red/orange surfaces. The failures are 1 source-label type(s) across only 2 images, not independent scenes. No covering ROI was lost to window size, area rejection, green/blue rejection, or geometric merging for these particular failures: no support-derived covering ROI existed upstream. Larger windows cannot create an anchor from zero color support; an unrelated nearby anchor could still cover a GT incidentally. Review the two source frames/GT visibility and color definition before further window-size tuning. Do not claim these observations generalize to all dark scenes or that the supplied labels are verified.</p><img src="stage_summary.png"><p>No ROI exists before the mask, so pre-mask ROI coverage is undefined. Raw and post-mask pixel support are reported separately. Anchor-envelope coverage is also not yet candidate ROI coverage. At least four red/orange pixels is only an operational threshold; supplied GT may contain background. GT-isolated anchors are diagnostic, never fed back to inference.</p>
+<h2>Mask support</h2>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>population</th>
+      <th>method</th>
+      <th>gt_count</th>
+      <th>native_mask_ge1</th>
+      <th>native_mask_ge16</th>
+      <th>raw_standard_mask_ge4</th>
+      <th>actual_mask_ge4</th>
+      <th>actual_mask_zero</th>
+      <th>gt_only_anchor_present</th>
+      <th>actual_gt_supported_anchor_present</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>all_dark_46</td>
+      <td>default</td>
+      <td>46</td>
+      <td>24</td>
+      <td>24</td>
+      <td>24</td>
+      <td>24</td>
+      <td>22</td>
+      <td>24</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <td>all_dark_46</td>
+      <td>dark_enhance</td>
+      <td>46</td>
+      <td>24</td>
+      <td>24</td>
+      <td>24</td>
+      <td>24</td>
+      <td>22</td>
+      <td>24</td>
+      <td>24</td>
+    </tr>
+    <tr>
+      <td>original_uncovered_22</td>
+      <td>default</td>
+      <td>22</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>original_uncovered_22</td>
+      <td>dark_enhance</td>
+      <td>22</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>22</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+<h2>Actual stage coverage</h2>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>population</th>
+      <th>method</th>
+      <th>stage</th>
+      <th>gt_count</th>
+      <th>covered_95</th>
+      <th>covered_100</th>
+      <th>mean_best_gt_coverage</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>all_dark_46</td>
+      <td>default</td>
+      <td>anchors</td>
+      <td>46</td>
+      <td>6</td>
+      <td>5</td>
+      <td>0.338</td>
+    </tr>
+    <tr>
+      <td>all_dark_46</td>
+      <td>default</td>
+      <td>generated</td>
+      <td>46</td>
+      <td>21</td>
+      <td>20</td>
+      <td>0.506</td>
+    </tr>
+    <tr>
+      <td>all_dark_46</td>
+      <td>default</td>
+      <td>area_filtered</td>
+      <td>46</td>
+      <td>21</td>
+      <td>20</td>
+      <td>0.506</td>
+    </tr>
+    <tr>
+      <td>all_dark_46</td>
+      <td>default</td>
+      <td>color_filtered</td>
+      <td>46</td>
+      <td>21</td>
+      <td>20</td>
+      <td>0.506</td>
+    </tr>
+    <tr>
+      <td>all_dark_46</td>
+      <td>default</td>
+      <td>merged_before_background</td>
+      <td>46</td>
+      <td>24</td>
+      <td>24</td>
+      <td>0.522</td>
+    </tr>
+    <tr>
+      <td>all_dark_46</td>
+      <td>default</td>
+      <td>final</td>
+      <td>46</td>
+      <td>24</td>
+      <td>24</td>
+      <td>0.522</td>
+    </tr>
+    <tr>
+      <td>all_dark_46</td>
+      <td>dark_enhance</td>
+      <td>anchors</td>
+      <td>46</td>
+      <td>18</td>
+      <td>16</td>
+      <td>0.492</td>
+    </tr>
+    <tr>
+      <td>all_dark_46</td>
+      <td>dark_enhance</td>
+      <td>generated</td>
+      <td>46</td>
+      <td>24</td>
+      <td>24</td>
+      <td>0.522</td>
+    </tr>
+    <tr>
+      <td>all_dark_46</td>
+      <td>dark_enhance</td>
+      <td>area_filtered</td>
+      <td>46</td>
+      <td>24</td>
+      <td>24</td>
+      <td>0.522</td>
+    </tr>
+    <tr>
+      <td>all_dark_46</td>
+      <td>dark_enhance</td>
+      <td>color_filtered</td>
+      <td>46</td>
+      <td>24</td>
+      <td>24</td>
+      <td>0.522</td>
+    </tr>
+    <tr>
+      <td>all_dark_46</td>
+      <td>dark_enhance</td>
+      <td>merged_before_background</td>
+      <td>46</td>
+      <td>24</td>
+      <td>24</td>
+      <td>0.522</td>
+    </tr>
+    <tr>
+      <td>all_dark_46</td>
+      <td>dark_enhance</td>
+      <td>final</td>
+      <td>46</td>
+      <td>24</td>
+      <td>24</td>
+      <td>0.522</td>
+    </tr>
+    <tr>
+      <td>original_uncovered_22</td>
+      <td>default</td>
+      <td>anchors</td>
+      <td>22</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <td>original_uncovered_22</td>
+      <td>default</td>
+      <td>generated</td>
+      <td>22</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <td>original_uncovered_22</td>
+      <td>default</td>
+      <td>area_filtered</td>
+      <td>22</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <td>original_uncovered_22</td>
+      <td>default</td>
+      <td>color_filtered</td>
+      <td>22</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <td>original_uncovered_22</td>
+      <td>default</td>
+      <td>merged_before_background</td>
+      <td>22</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <td>original_uncovered_22</td>
+      <td>default</td>
+      <td>final</td>
+      <td>22</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <td>original_uncovered_22</td>
+      <td>dark_enhance</td>
+      <td>anchors</td>
+      <td>22</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <td>original_uncovered_22</td>
+      <td>dark_enhance</td>
+      <td>generated</td>
+      <td>22</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <td>original_uncovered_22</td>
+      <td>dark_enhance</td>
+      <td>area_filtered</td>
+      <td>22</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <td>original_uncovered_22</td>
+      <td>dark_enhance</td>
+      <td>color_filtered</td>
+      <td>22</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <td>original_uncovered_22</td>
+      <td>dark_enhance</td>
+      <td>merged_before_background</td>
+      <td>22</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <td>original_uncovered_22</td>
+      <td>dark_enhance</td>
+      <td>final</td>
+      <td>22</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.000</td>
+    </tr>
+  </tbody>
+</table>
+<h2>Original uncovered cohort: first failure</h2>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>first_failure</th>
+      <th>gt_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>dark_enhance</td>
+      <td>mask_zero_pixels</td>
+      <td>22</td>
+    </tr>
+    <tr>
+      <td>default</td>
+      <td>mask_zero_pixels</td>
+      <td>22</td>
+    </tr>
+  </tbody>
+</table>
+<h3>train/camera_1C0FAF5250E2/bfee1df1-e99b-478e-86a1-b0b6df558d58.jpg — GT 0</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/00_bfee1df1-e99b-478e-86a1-b0b6df558d58_gt0.png">
+<h3>train/camera_1C0FAF5250E2/bfee1df1-e99b-478e-86a1-b0b6df558d58.jpg — GT 1</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/01_bfee1df1-e99b-478e-86a1-b0b6df558d58_gt1.png">
+<h3>train/camera_1C0FAF5250E2/bfee1df1-e99b-478e-86a1-b0b6df558d58.jpg — GT 2</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/02_bfee1df1-e99b-478e-86a1-b0b6df558d58_gt2.png">
+<h3>train/camera_1C0FAF5250E2/bfee1df1-e99b-478e-86a1-b0b6df558d58.jpg — GT 3</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/03_bfee1df1-e99b-478e-86a1-b0b6df558d58_gt3.png">
+<h3>train/camera_1C0FAF5250E2/bfee1df1-e99b-478e-86a1-b0b6df558d58.jpg — GT 4</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/04_bfee1df1-e99b-478e-86a1-b0b6df558d58_gt4.png">
+<h3>train/camera_1C0FAF5250E2/bfee1df1-e99b-478e-86a1-b0b6df558d58.jpg — GT 5</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/05_bfee1df1-e99b-478e-86a1-b0b6df558d58_gt5.png">
+<h3>train/camera_1C0FAF5250E2/bfee1df1-e99b-478e-86a1-b0b6df558d58.jpg — GT 6</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/06_bfee1df1-e99b-478e-86a1-b0b6df558d58_gt6.png">
+<h3>train/camera_1C0FAF5250E2/9f2f319e-ddee-4c67-975d-a1f0204afcf0.jpg — GT 0</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/07_9f2f319e-ddee-4c67-975d-a1f0204afcf0_gt0.png">
+<h3>train/camera_1C0FAF5250E2/9f2f319e-ddee-4c67-975d-a1f0204afcf0.jpg — GT 1</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/08_9f2f319e-ddee-4c67-975d-a1f0204afcf0_gt1.png">
+<h3>train/camera_1C0FAF5250E2/9f2f319e-ddee-4c67-975d-a1f0204afcf0.jpg — GT 2</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/09_9f2f319e-ddee-4c67-975d-a1f0204afcf0_gt2.png">
+<h3>train/camera_1C0FAF5250E2/9f2f319e-ddee-4c67-975d-a1f0204afcf0.jpg — GT 3</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/10_9f2f319e-ddee-4c67-975d-a1f0204afcf0_gt3.png">
+<h3>train/camera_1C0FAF5250E2/9f2f319e-ddee-4c67-975d-a1f0204afcf0.jpg — GT 4</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/11_9f2f319e-ddee-4c67-975d-a1f0204afcf0_gt4.png">
+<h3>train/camera_1C0FAF5250E2/9f2f319e-ddee-4c67-975d-a1f0204afcf0.jpg — GT 5</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/12_9f2f319e-ddee-4c67-975d-a1f0204afcf0_gt5.png">
+<h3>train/camera_1C0FAF5250E2/9f2f319e-ddee-4c67-975d-a1f0204afcf0.jpg — GT 6</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/13_9f2f319e-ddee-4c67-975d-a1f0204afcf0_gt6.png">
+<h3>train/camera_1C0FAF5250E2/9f2f319e-ddee-4c67-975d-a1f0204afcf0.jpg — GT 7</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/14_9f2f319e-ddee-4c67-975d-a1f0204afcf0_gt7.png">
+<h3>train/camera_1C0FAF5250E2/9f2f319e-ddee-4c67-975d-a1f0204afcf0.jpg — GT 8</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/15_9f2f319e-ddee-4c67-975d-a1f0204afcf0_gt8.png">
+<h3>train/camera_1C0FAF5250E2/9f2f319e-ddee-4c67-975d-a1f0204afcf0.jpg — GT 9</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/16_9f2f319e-ddee-4c67-975d-a1f0204afcf0_gt9.png">
+<h3>train/camera_1C0FAF5250E2/9f2f319e-ddee-4c67-975d-a1f0204afcf0.jpg — GT 10</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/17_9f2f319e-ddee-4c67-975d-a1f0204afcf0_gt10.png">
+<h3>train/camera_1C0FAF5250E2/9f2f319e-ddee-4c67-975d-a1f0204afcf0.jpg — GT 11</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/18_9f2f319e-ddee-4c67-975d-a1f0204afcf0_gt11.png">
+<h3>train/camera_1C0FAF5250E2/9f2f319e-ddee-4c67-975d-a1f0204afcf0.jpg — GT 12</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/19_9f2f319e-ddee-4c67-975d-a1f0204afcf0_gt12.png">
+<h3>train/camera_1C0FAF5250E2/9f2f319e-ddee-4c67-975d-a1f0204afcf0.jpg — GT 13</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/20_9f2f319e-ddee-4c67-975d-a1f0204afcf0_gt13.png">
+<h3>train/camera_1C0FAF5250E2/9f2f319e-ddee-4c67-975d-a1f0204afcf0.jpg — GT 14</h3>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>mask_pixels</th>
+      <th>gt_only_anchor_count</th>
+      <th>first_failure</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>default</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+    <tr>
+      <td>dark_enhance</td>
+      <td>0</td>
+      <td>0</td>
+      <td>mask_zero_pixels</td>
+    </tr>
+  </tbody>
+</table>
+<img loading="lazy" src="images/21_9f2f319e-ddee-4c67-975d-a1f0204afcf0_gt14.png"></html>

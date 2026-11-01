@@ -1,0 +1,114 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>ROI V3 containment</title><style>body{font:16px system-ui;margin:24px}img{width:100%}table{border-collapse:collapse}td,th{padding:7px}</style>
+<h1>ROI V3: candidate containment</h1><p>Training development sample only; supplied GT is unverified and can include background/groups. No classification, intensity or precision/F1. GT is never supplied to image-specific proposal generation.</p>
+<p>Green-blue-50-s25 changes only the saturation lower bound from 0.35 to 0.25; background-50 comparisons use 0.35. Diagnosis categories describe observed support, not verified failure causes.</p>
+<p>Green and blue refer to HSV pixel membership, not semantic background masks. Merging is bounded against a fixed original seed and rechecks background. Compact area ratios use the smallest eligible ROI for each covered GT; uncovered GT has no ratio.</p>
+<p>Default: 42.5% GT coverage &gt;=95%, 42.5% strict containment, 34.6 ROIs/image. Median/p90 compact area ratio at &gt;=95%: 19.28/169.58. Merging reduces 498.5 unmerged ROIs/image but makes compact ROIs larger. The green/blue gate rejects 0 pre-merge candidates in this run; do not assume a filtering benefit. Lowering S to 0.25 yields 60.3% coverage with area-ratio p90 362.96: greater coverage can come from oversized boxes. These settings are provisional; the small, imbalanced training sample cannot establish an optimum.</p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>gt_boxes</th>
+      <th>compact_coverage_95_area_le_4</th>
+      <th>gt_coverage_95</th>
+      <th>gt_coverage_100</th>
+      <th>iou_05</th>
+      <th>area_ratio_95_median</th>
+      <th>area_ratio_95_p90</th>
+      <th>area_ratio_100_median</th>
+      <th>mean_roi_count</th>
+      <th>mean_runtime_seconds</th>
+      <th>lost_vs_no_filter_covered_95</th>
+      <th>lost_vs_no_filter_covered_100</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>no_background_filter</td>
+      <td>73</td>
+      <td>0.096</td>
+      <td>0.425</td>
+      <td>0.425</td>
+      <td>0.068</td>
+      <td>19.279</td>
+      <td>169.584</td>
+      <td>19.279</td>
+      <td>34.583</td>
+      <td>0.196</td>
+      <td>0.000</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <td>green_40</td>
+      <td>73</td>
+      <td>0.096</td>
+      <td>0.425</td>
+      <td>0.425</td>
+      <td>0.068</td>
+      <td>19.279</td>
+      <td>169.584</td>
+      <td>19.279</td>
+      <td>34.583</td>
+      <td>0.192</td>
+      <td>0.000</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <td>green_blue_50_unmerged</td>
+      <td>73</td>
+      <td>0.356</td>
+      <td>0.425</td>
+      <td>0.411</td>
+      <td>0.425</td>
+      <td>1.599</td>
+      <td>11.537</td>
+      <td>1.947</td>
+      <td>498.500</td>
+      <td>0.199</td>
+      <td>0.000</td>
+      <td>1.000</td>
+    </tr>
+    <tr>
+      <td>green_blue_50</td>
+      <td>73</td>
+      <td>0.096</td>
+      <td>0.425</td>
+      <td>0.425</td>
+      <td>0.068</td>
+      <td>19.279</td>
+      <td>169.584</td>
+      <td>19.279</td>
+      <td>34.583</td>
+      <td>0.316</td>
+      <td>0.000</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <td>green_blue_50_s25</td>
+      <td>73</td>
+      <td>0.082</td>
+      <td>0.603</td>
+      <td>0.589</td>
+      <td>0.055</td>
+      <td>114.730</td>
+      <td>362.963</td>
+      <td>121.312</td>
+      <td>37.250</td>
+      <td>0.341</td>
+      <td>0.000</td>
+      <td>0.000</td>
+    </tr>
+  </tbody>
+</table>
+<img src="summary.png">
+<h3>train/camera_1C0FAF5250E2/bfee1df1-e99b-478e-86a1-b0b6df558d58.jpg</h3><img loading="lazy" src="images/000_bfee1df1-e99b-478e-86a1-b0b6df558d58.png">
+<h3>train/camera_1C0FAF57D6F8/5adef0f1-c8ac-45d9-b9b8-a64874773e39.jpg</h3><img loading="lazy" src="images/001_5adef0f1-c8ac-45d9-b9b8-a64874773e39.png">
+<h3>train/camera_1C0FAF5CA7B6/08ce4cdf-a3cd-4692-b760-f27f65c131e4.jpg</h3><img loading="lazy" src="images/002_08ce4cdf-a3cd-4692-b760-f27f65c131e4.png">
+<h3>train/camera_1C0FAF5CC14D/24012e30-4034-46b1-baaa-b7633d873a01.jpg</h3><img loading="lazy" src="images/003_24012e30-4034-46b1-baaa-b7633d873a01.png">
+<h3>train/camera_1C0FAF5250E2/b327e871-3901-41de-b7c6-871491f3a720.jpg</h3><img loading="lazy" src="images/004_b327e871-3901-41de-b7c6-871491f3a720.png">
+<h3>train/camera_1C0FAF57D6F8/77e685a2-1fac-4897-ac52-bd93e861f2c7.jpg</h3><img loading="lazy" src="images/005_77e685a2-1fac-4897-ac52-bd93e861f2c7.png">
+<h3>train/camera_1C0FAF5CA7B6/cb8c7db0-1f8e-4ec8-ae81-684045ccbcf2.jpg</h3><img loading="lazy" src="images/006_cb8c7db0-1f8e-4ec8-ae81-684045ccbcf2.png">
+<h3>train/camera_1C0FAF5CC14D/483a20d0-c966-4542-8ba0-3d27dce72262.jpg</h3><img loading="lazy" src="images/007_483a20d0-c966-4542-8ba0-3d27dce72262.png">
+<h3>train/camera_1C0FAF5250E2/9f2f319e-ddee-4c67-975d-a1f0204afcf0.jpg</h3><img loading="lazy" src="images/008_9f2f319e-ddee-4c67-975d-a1f0204afcf0.png">
+<h3>train/camera_1C0FAF57D6F8/7fe495cc-1531-4be2-aad9-eaee6590c192.jpg</h3><img loading="lazy" src="images/009_7fe495cc-1531-4be2-aad9-eaee6590c192.png">
+<h3>train/camera_1C0FAF5CA7B6/4ef5af3c-972f-47fe-8e98-bac636a1189c.jpg</h3><img loading="lazy" src="images/010_4ef5af3c-972f-47fe-8e98-bac636a1189c.png">
+<h3>train/camera_1C0FAF5CC14D/e3695a01-09d4-4cea-a571-7a461b380c04.jpg</h3><img loading="lazy" src="images/011_e3695a01-09d4-4cea-a571-7a461b380c04.png"></html>

@@ -1,0 +1,2 @@
+method,gt_boxes,complete_gt_boxes,partial_gt_boxes,no_overlap_gt_boxes,gt_coverage_95,gt_coverage_100,iou_05,area_ratio_95_median,area_ratio_95_p90,compact_coverage_95_area_le_4,mean_roi_count,mean_runtime_seconds
+green_blue_50,73,36,2,35,0.4931506849315068,0.4931506849315068,0.0136986301369863,259.67847146103634,683.7539773263627,0.0410958904109589,6.833333333333333,0.22430651052854955

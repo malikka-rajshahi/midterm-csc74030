@@ -1,0 +1,177 @@
+{
+  "version": 4,
+  "scope": "official training development sample only; test images never opened",
+  "images": 12,
+  "canonical_gt_boxes": 73,
+  "denoised": true,
+  "config": {
+    "version": 4,
+    "work_size": [
+      1440,
+      930
+    ],
+    "window_sizes": [
+      [
+        7,
+        14
+      ],
+      [
+        8,
+        18
+      ],
+      [
+        8,
+        23
+      ],
+      [
+        11,
+        25
+      ],
+      [
+        10,
+        33
+      ],
+      [
+        19,
+        40
+      ],
+      [
+        16,
+        54
+      ],
+      [
+        33,
+        64
+      ],
+      [
+        46,
+        46
+      ],
+      [
+        27,
+        97
+      ],
+      [
+        62,
+        57
+      ],
+      [
+        82,
+        78
+      ],
+      [
+        60,
+        112
+      ],
+      [
+        55,
+        198
+      ],
+      [
+        134,
+        121
+      ],
+      [
+        255,
+        204
+      ],
+      [
+        521,
+        363
+      ]
+    ],
+    "saturation_min": 0.35,
+    "value_min": 0.15,
+    "anchor_blocks": [
+      2,
+      4,
+      8
+    ],
+    "min_anchor_pixels": 4,
+    "anchor_padding": 0.25,
+    "nearest_windows": 3,
+    "max_roi_area_fraction": 0.25,
+    "window_anchor_area_ratio": 4.0,
+    "training_provenance": {
+      "images": 2871,
+      "canonical_boxes": 14738,
+      "annotation_sha256": "d3b1b109eea01196a3e39d4f792f2514b87a2c020a248ff50ec8acab5fffa2c1",
+      "fit": "Per-label area-quantile bins; median width/height times 1.25. Labels used only for global bank balancing.",
+      "gt_statistics": [
+        {
+          "source_label": "cone",
+          "boxes": 6208,
+          "width_p10_p50_p90": [
+            5.0,
+            10.79,
+            34.13
+          ],
+          "height_p10_p50_p90": [
+            12.17,
+            24.56,
+            68.16
+          ]
+        },
+        {
+          "source_label": "roadworks",
+          "boxes": 1561,
+          "width_p10_p50_p90": [
+            41.46,
+            83.99,
+            297.65
+          ],
+          "height_p10_p50_p90": [
+            40.2,
+            80.05,
+            220.12
+          ]
+        },
+        {
+          "source_label": "vertical_pannel",
+          "boxes": 6969,
+          "width_p10_p50_p90": [
+            5.0,
+            9.76,
+            30.2
+          ],
+          "height_p10_p50_p90": [
+            14.26,
+            33.51,
+            108.1
+          ]
+        }
+      ]
+    },
+    "merge_strategy": "positive_intersection_closure"
+  },
+  "variants": {
+    "no_background_filter": {
+      "background_mode": "none"
+    },
+    "green_40": {
+      "background_mode": "green_40"
+    },
+    "green_blue_50_unmerged": {
+      "background_mode": "green_blue_50",
+      "merge": false
+    },
+    "green_blue_50": {
+      "background_mode": "green_blue_50"
+    },
+    "tree_filter_only": {
+      "background_mode": "green_blue_50",
+      "tree_filter": true
+    },
+    "dark_enhance_only": {
+      "background_mode": "green_blue_50",
+      "dark_enhance": true
+    }
+  },
+  "evaluation": "GT intersection / GT area; strict containment uses coordinate inequalities.",
+  "timing": "Per variant end-to-end resize, denoise, color, windows, filtering, merging and evidence; excludes file I/O and plotting.",
+  "limitations": "Configuration fitted on official training GT; this is in-sample development, not a held-out accuracy estimate.",
+  "experiment_definitions": {
+    "tree": "Context at least64 or2x anchor; red/orange fill<3%; green/yellow context>=35%; H45..170 S>=.20 V>=.12",
+    "dark": "Original V[.05,.35); HSV-V CLAHE clip2/tile8x8; local S>=.25; crops unchanged"
+  }
+}

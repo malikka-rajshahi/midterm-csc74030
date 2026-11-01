@@ -1,0 +1,3 @@
+method,first_failure,gt_count
+dark_enhance,mask_zero_pixels,22
+default,mask_zero_pixels,22

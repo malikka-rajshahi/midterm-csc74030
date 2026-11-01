@@ -1,0 +1,27 @@
+{
+  "training_images": 12,
+  "test_images_read": 0,
+  "dedup_iou": 0.9,
+  "baseline_covered_lost": 0,
+  "newly_covered": 1,
+  "seeds": [
+    "red",
+    "orange",
+    "yellow"
+  ],
+  "yellow_degrees": [
+    45,
+    65
+  ],
+  "green_blue_evidence_only": true,
+  "green_gate_vs_warm": {
+    "warm_green_max_0.4": {
+      "lost": 0,
+      "gained": 0
+    },
+    "warm_green_max_0.5": {
+      "lost": 0,
+      "gained": 0
+    }
+  }
+}

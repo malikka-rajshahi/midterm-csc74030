@@ -1,0 +1,278 @@
+{
+  "scope": "Geometry-only in-sample development; frozen V4 input; official test untouched",
+  "config": {
+    "work_size": [
+      1440,
+      930
+    ],
+    "stride_fraction": 0.5,
+    "generic_shapes": [
+      [
+        4,
+        2
+      ],
+      [
+        4,
+        4
+      ],
+      [
+        4,
+        8
+      ],
+      [
+        4,
+        16
+      ],
+      [
+        8,
+        4
+      ],
+      [
+        8,
+        8
+      ],
+      [
+        8,
+        16
+      ],
+      [
+        8,
+        32
+      ],
+      [
+        16,
+        8
+      ],
+      [
+        16,
+        16
+      ],
+      [
+        16,
+        32
+      ],
+      [
+        16,
+        64
+      ],
+      [
+        32,
+        16
+      ],
+      [
+        32,
+        32
+      ],
+      [
+        32,
+        64
+      ],
+      [
+        32,
+        128
+      ],
+      [
+        64,
+        32
+      ],
+      [
+        64,
+        64
+      ],
+      [
+        64,
+        128
+      ],
+      [
+        64,
+        256
+      ],
+      [
+        128,
+        64
+      ],
+      [
+        128,
+        128
+      ],
+      [
+        128,
+        256
+      ],
+      [
+        128,
+        512
+      ],
+      [
+        256,
+        128
+      ],
+      [
+        256,
+        256
+      ],
+      [
+        256,
+        512
+      ],
+      [
+        512,
+        256
+      ],
+      [
+        512,
+        512
+      ]
+    ],
+    "constrained_shapes": [
+      [
+        4,
+        8
+      ],
+      [
+        4,
+        16
+      ],
+      [
+        8,
+        16
+      ],
+      [
+        8,
+        32
+      ],
+      [
+        16,
+        32
+      ],
+      [
+        16,
+        64
+      ],
+      [
+        32,
+        32
+      ],
+      [
+        32,
+        64
+      ],
+      [
+        32,
+        128
+      ],
+      [
+        64,
+        32
+      ],
+      [
+        64,
+        64
+      ],
+      [
+        64,
+        128
+      ],
+      [
+        64,
+        256
+      ],
+      [
+        128,
+        64
+      ],
+      [
+        128,
+        128
+      ],
+      [
+        128,
+        256
+      ],
+      [
+        256,
+        128
+      ],
+      [
+        256,
+        256
+      ],
+      [
+        512,
+        256
+      ]
+    ],
+    "size_aspect_bounds": [
+      {
+        "source_label": "cone",
+        "width": [
+          3.8936800000000056,
+          82.00000000000003
+        ],
+        "height": [
+          7.460559999999993,
+          152.17074999999963
+        ],
+        "aspect": [
+          0.2306756483254218,
+          0.9480509311179763
+        ]
+      },
+      {
+        "source_label": "roadworks",
+        "width": [
+          15.476799999999967,
+          667.88375
+        ],
+        "height": [
+          20.244800000000005,
+          483.74999999999994
+        ],
+        "aspect": [
+          0.35750149274498,
+          2.598212846914061
+        ]
+      },
+      {
+        "source_label": "vertical_pannel",
+        "width": [
+          3.868320000000029,
+          86.92849999999996
+        ],
+        "height": [
+          6.998879999999997,
+          309.00950000000057
+        ],
+        "aspect": [
+          0.15656890713592833,
+          0.7215265950450929
+        ]
+      }
+    ],
+    "perspective": {
+      "top_y": 0.027354032258064515,
+      "top_left": 0.41596572916666663,
+      "top_right": 0.9257215624999998,
+      "bottom_left": 0.06285519097222222,
+      "bottom_right": 0.9762413020833333,
+      "slope": 3.225218156095914,
+      "intercept": 2.5314117037791357,
+      "residual_low": -0.955885430561284,
+      "residual_high": 1.1429443881052042,
+      "y_log_height_correlation": 0.5895270216852727
+    },
+    "training_provenance": {
+      "images": 2871,
+      "canonical_boxes": 14738,
+      "annotation_sha256": "d3b1b109eea01196a3e39d4f792f2514b87a2c020a248ff50ec8acab5fffa2c1",
+      "scope": "Official training only; same population used for development evaluation; not held-out validation"
+    },
+    "geometry_definition": "Rectangular windows; trapezoid constrains normalized center-x and bottom-y, not patch shape. Log height follows bottom-y."
+  },
+  "coarse_source": "/private/tmp/roi_refinement/common/ROI/v4/result_official",
+  "coarse_predictions_sha256": "602e51d5da53447149734b3439a6f2faf79b6b17e787924b52703bc15a25746c",
+  "features_tested": false,
+  "provisional_default": "S2",
+  "timing": "Local window generation/filtering/exact dedup only; excludes fitting, V4 generation, disk I/O and plotting.",
+  "selection": "No feature matcher or final object classification; GT-best windows appear only as evaluation diagnostics."
+}

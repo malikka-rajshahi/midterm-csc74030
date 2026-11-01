@@ -1,0 +1,4 @@
+method,source_label,gt_count,covered_95,covered_100,coverage_95,iou_05,coarse_covered_95,conditional_coverage_95,lost_coarse_covered_95,matched_coarse_ratio_95_median,compact_ratio_95_median,compact_ratio_95_p90
+FINAL,cone,7,7,7,1.0,1.0,7,1.0,0,493.4245292989737,3.6326767790360264,5.47937718458353
+FINAL,roadworks,3,0,0,0.0,0.6666666666666666,1,0.0,1,,,
+FINAL,vertical_pannel,63,27,25,0.42857142857142855,0.36507936507936506,28,0.9642857142857143,1,252.09919102197952,3.0452752732569826,5.398663594842797

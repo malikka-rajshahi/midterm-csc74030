@@ -1,0 +1,13 @@
+method,source_label,boxes,coverage_iou_05
+previous_blue_yellow75,cone,7,0.7142857142857143
+previous_blue_yellow75,roadworks,3,0.3333333333333333
+previous_blue_yellow75,vertical_pannel,63,0.31746031746031744
+warm_green_max_0.4,cone,7,0.7142857142857143
+warm_green_max_0.4,roadworks,3,0.6666666666666666
+warm_green_max_0.4,vertical_pannel,63,0.31746031746031744
+warm_green_max_0.5,cone,7,0.7142857142857143
+warm_green_max_0.5,roadworks,3,0.6666666666666666
+warm_green_max_0.5,vertical_pannel,63,0.31746031746031744
+warm_only_yellow65,cone,7,0.7142857142857143
+warm_only_yellow65,roadworks,3,0.6666666666666666
+warm_only_yellow65,vertical_pannel,63,0.31746031746031744

@@ -1,0 +1,5 @@
+population,method,gt_count,native_mask_ge1,native_mask_ge16,raw_standard_mask_ge4,actual_mask_ge4,actual_mask_zero,gt_only_anchor_present,actual_gt_supported_anchor_present
+all_dark_46,default,46,24,24,24,24,22,24,24
+all_dark_46,dark_enhance,46,24,24,24,24,22,24,24
+original_uncovered_22,default,22,0,0,0,0,22,0,0
+original_uncovered_22,dark_enhance,22,0,0,0,0,22,0,0
