@@ -123,3 +123,99 @@ Call extraction per image, then concatenate aligned arrays externally for multi-
 Color and Intensity remain separate tests. Feature units, binning, dimensions, preprocessing and distance formulas must match their references/thresholds. Do not reuse an L1 threshold for squared L2 or add raw color and intensity distances. Any future fusion needs separately fitted scaling and validation; no fusion is implemented.
 
 No dataset rerun, new trained thresholds or detector accuracy is claimed by this structural refactor. Existing feature formulas, common code, historical analyses and saved results are preserved. Only these shared detection interfaces and documentation are updated.
+
+## End-to-end detection and independent evaluation
+
+`detection.py` connects existing common V4 `green_blue_50`, local windows, shared extraction, matching and existing same-class NMS. It never reads GT. `evaluation.py` independently compares saved predictions with original-coordinate GT and never changes detection parameters.
+
+### Detection API
+
+- `load_image(image)`: path or nonempty uint8 **BGR** array.
+- `generate_candidates(image_bgr, roi_config=None)`: V4 followed by **S2 by default**. Set `method='FINAL'` for the earlier S2 + S1 upper-scale fallback. V4/window work sizes must match.
+- `extract_candidate_features(candidates, feature_config)`: uses the already resized/denoised V4 image; no repeated preprocessing.
+- `match_candidates(features, references, thresholds, feature_config)`: delegates distance/threshold decisions to `feature_matching.py`.
+- `detect_image(...)`: final detections, coarse/candidate/accepted/final counts, stage runtimes and configuration.
+- `detect_dataset(...)`: image directory or explicit `{image_id: path_or_bgr}` mapping; optional prediction saving and drawn images.
+- `visualize_detections(...)`: green final prediction boxes, classes and distances on the original image. No GT overlay.
+- `save_detections(...)`: JSON or CSV. Empty-image CSV rows are retained, so evaluation does not lose missed targets.
+
+All exported boxes use **original-image `[x, y, width, height]`**, with floating coordinates preserving resize precision. Internal V4/S2/NMS boxes use half-open `xyxy`. Matching does not regress or resize a predicted window. Distances are not probabilities. NMS is called once, after thresholding; it suppresses only same-class boxes, preferring lower distance. No arbitrary Top-K is added.
+
+Example in Python, using already prepared training references and validation thresholds:
+
+```python
+from common.ROI.v4.generate_rois import load_config as load_v4
+from common.ROI_refinement.generate_windows import load_config as load_windows
+from detection.detection import detect_image, visualize_detections, save_detections
+
+feature_config = {'names': ['intensity_histogram'], 'metric': 'l1'}
+roi_config = {
+    'v4': load_v4(), 'windows': load_windows(),
+    'method': 'S2', 'apply_denoise': True,
+}
+# reference_model = build_references(training_features, training_labels)
+# calibration = calibrate_thresholds(... separately labeled validation ...)
+reference_model['feature_config'] = feature_config
+result = detect_image(image_path, reference_model, calibration['thresholds'],
+                      feature_config, roi_config, image_id='test/camera/image.jpg')
+visualize_detections(image_path, result, 'outputs/preview.png')
+save_detections(result, 'outputs/predictions.json')
+```
+
+Use `names=['hsv_histogram']`, `['rgb_histogram']` or `['lab_histogram']` for Color, `['intensity_histogram']` for gray histograms, or e.g. `['variance']` with `metric='absolute'` for a scalar. Optional `histogram_bins` follows `feature_extract.py`. Prepare references and validation examples using the same resizing, denoising, bins, features and metric as candidates. Store the exact `feature_config` with references; mismatched configurations raise an error. Undefined features (e.g. spatial entropy on height-one windows) raise an error instead of silently dropping windows.
+
+### Explicit Combined representation
+
+Combined is supported as **configured feature concatenation**, using the same existing distance functions. There is no new classifier and no automatic fitting or feature selection. Each block is transformed as `(feature - offset) / scale * weight` before concatenation. Multiple blocks require explicit positive `scales` and `weights`; offsets default to zero. Scales/offsets may be scalar or per-dimension arrays.
+
+```python
+combined_config = {
+    'names': ['hsv_histogram', 'intensity_histogram'], 'metric': 'l1',
+    'scales': {'hsv_histogram': 1.0, 'intensity_histogram': 1.0},
+    'weights': {'hsv_histogram': 1.0, 'intensity_histogram': 1.0},
+}
+```
+
+These identity numbers demonstrate the schema, **not validated best fusion settings**. Choose/fix scales from training and weights using validation; never derive them from a test image. Build references from the identically transformed training vectors and **recalibrate a separate Combined threshold**. Do not reuse thresholds from either individual feature. The API `extract_candidate_features()` can also apply the identical transform to any supplied, consistently preprocessed training/validation rectangles via `{'work_image_bgr': image, 'boxes': boxes}`. It does not generate or label those rectangles. For chi-square-max, transformed inputs must remain nonnegative; the existing matcher enforces this.
+
+### Saved model and batch command
+
+The model JSON contains `feature_config`, `references` (`features`, `labels`, identical `feature_config`), `thresholds` (scalar or class mapping), and `roi_config` (including V4/window configuration and preprocessing used during validation). Convert NumPy reference arrays to lists before JSON serialization. Save the configuration explicitly so inference does not refit geometry, references or thresholds.
+
+From the repository root:
+
+```bash
+python -m detection.detection \
+  --images /path/to/roadwork_cones_dataset/test \
+  --model /path/to/validated_model.json \
+  --output outputs/predictions.json \
+  --visualizations outputs/images
+```
+
+Directory IDs are paths **relative to `--images`**, including the camera folder, not only basenames. An explicit ID-to-image mapping lets Python callers retain a `test/` prefix. Keep the model, metric and NMS settings fixed after validation. No ready-trained model or calibrated threshold is supplied by these plumbing modules.
+
+### Independent evaluation
+
+`load_ground_truth()` supports the existing Roadwork `annotations.parquet` (`image_path`, `label`, `bbox_coords` in original `xywh`), same-format JSON with `annotations`, or CSV (`image_id,x,y,width,height,class`). Parquet exact duplicate annotations are removed consistently with common. Keep `cone`, `roadworks`, `vertical_pannel` as supplied unless an explicit mapping is justified; no automatic roadworks-to-sign renaming occurs.
+
+```bash
+python -m detection.evaluation \
+  --predictions outputs/predictions.json \
+  --gt /path/to/roadwork_cones_dataset/annotations.parquet \
+  --split test --image-prefix test \
+  --iou 0.5 --output outputs/evaluation
+```
+
+Here `--image-prefix test` aligns the directory-generated camera/image IDs with GT `test/camera/image` IDs. Omit it if prediction IDs already include `test/`. Never evaluate the entire train+test annotation table against predictions for one split. For an explicit subset, use `load_ground_truth(..., image_ids=complete_subset_ids)` in Python; the subset must include failed/empty images, not just successful detections. Images with no GT may be supplied explicitly even if an annotation-only table does not list them.
+
+`calculate_iou()` uses original `xywh` boxes. `match_detections_to_gt()` processes predictions in ascending distance order, with stable input-order ties, and selects the highest-IoU unmatched **same-class** GT above threshold. Each GT and prediction participate in at most one TP. All unmatched predictions are FP; all unmatched GT are FN. This is a documented greedy detection metric, not maximum-cardinality matching or AP/mAP. Compare configurations independently because their distance scales differ.
+
+`evaluate_dataset()` evaluates the union of supplied IDs: missing predictions become empty rather than disappearing; prediction-only images contribute FP. Optional `class_mapping` is applied consistently to both sides. Coordinate/class alignment remains the caller's responsibility. Precision/Recall/F1 are **0.0 when the denominator is zero**, including an entirely empty evaluation.
+
+`generate_report()` writes:
+
+- `report.json`: overall/per-class metrics and per-image match indices, IoUs, FP and FN details.
+- `overall.csv`, `per_class.csv`, `per_image.csv`: TP, FP, FN, Precision, Recall and F1.
+- `failure_counts.csv`: unmatched prediction diagnostics (duplicate, wrong class, localization or background). These are heuristic explanations; all remain FP. Missing GT indices are retained separately in `report.json`.
+
+Test annotations enter only this evaluation module. They must not be used to change matching thresholds, fusion weights or ROI geometry. This implementation has integration/edge-case checks; no new full-dataset performance result is claimed.
