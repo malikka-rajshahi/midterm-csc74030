@@ -1,0 +1,186 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>HSV ROI feature matching</title><style>body{font:16px system-ui;margin:24px}img{width:100%}td,th{padding:7px}</style>
+<h1>HSV histogram matching on FINAL ROI windows</h1>
+<p>V4 green_blue_50 coarse ROIs, then FINAL rectangular windows, then hsv_histogram features, then D3 nearest class-mean reference with validation thresholds, then same-class NMS. GT is used only for evaluation, never for placing or accepting windows.</p>
+<p>HSV histograms (hsv_histogram, bins [18, 8, 8]) were extracted on every FINAL window after V4 coarse ROI generation, on the same 12 training images and 73 canonical GT boxes as ROI_refinement. ROI windows cover 34/73 GT at &gt;=95% (V4 ceiling 36). Matching with D3 against class-mean references and validation thresholds (cone 3.025, roadworks 1.668, vertical_pannel 3.264) accepts 4,210 of 30,159 windows per image (14.0%); accepted windows still cover 34 GT at &gt;=95% (0 lost by matching), and 26 GT have a same-class accepted window with IoU &gt;= 0.5. After same-class NMS at IoU 0.5: 2,067.0 detections per image, TP 19, FP 24785, FN 54; precision 0.001, recall 0.260, F1 0.002. Per class: cone: P 0.000 R 0.286 (TP 2, FP 11054, FN 5); roadworks: P 0.000 R 0.000 (TP 0, FP 788, FN 3); vertical_pannel: P 0.001 R 0.270 (TP 17, FP 12943, FN 46). Unmatched-prediction reasons: background 21458, localization 3322, wrong_class 5. References: 300 training-split images (1483 GT boxes); thresholds: 120 validation-split images (6531 regions, 5950 background windows). None of the 12 evaluation images was used for fitting, but they are official-training images, so this is development evidence, not held-out test performance. Background calibration windows come from unannotated regions, and the GT is not exhaustive.</p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>gt_count</th>
+      <th>covered_95</th>
+      <th>covered_100</th>
+      <th>coverage_95</th>
+      <th>iou_05</th>
+      <th>coarse_covered_95</th>
+      <th>conditional_coverage_95</th>
+      <th>lost_coarse_covered_95</th>
+      <th>matched_coarse_ratio_95_median</th>
+      <th>compact_ratio_95_median</th>
+      <th>compact_ratio_95_p90</th>
+      <th>accepted_covered_95</th>
+      <th>lost_by_matching_95</th>
+      <th>accepted_same_class_iou_05</th>
+      <th>detected</th>
+      <th>mean_windows</th>
+      <th>mean_accepted</th>
+      <th>mean_final_detections</th>
+      <th>TP</th>
+      <th>FP</th>
+      <th>FN</th>
+      <th>precision</th>
+      <th>recall</th>
+      <th>f1</th>
+      <th>mean_runtime_seconds</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>FINAL+hsv_histogram</td>
+      <td>73</td>
+      <td>34</td>
+      <td>32</td>
+      <td>0.466</td>
+      <td>0.438</td>
+      <td>36</td>
+      <td>0.944</td>
+      <td>2</td>
+      <td>271.723</td>
+      <td>3.259</td>
+      <td>5.583</td>
+      <td>34</td>
+      <td>0</td>
+      <td>26</td>
+      <td>19</td>
+      <td>30159.000</td>
+      <td>4209.917</td>
+      <td>2067.000</td>
+      <td>19</td>
+      <td>24785</td>
+      <td>54</td>
+      <td>0.001</td>
+      <td>0.260</td>
+      <td>0.002</td>
+      <td>1.983</td>
+    </tr>
+  </tbody>
+</table>
+<h2>By label</h2>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>source_label</th>
+      <th>gt_count</th>
+      <th>covered_95</th>
+      <th>covered_100</th>
+      <th>coverage_95</th>
+      <th>iou_05</th>
+      <th>coarse_covered_95</th>
+      <th>conditional_coverage_95</th>
+      <th>lost_coarse_covered_95</th>
+      <th>matched_coarse_ratio_95_median</th>
+      <th>compact_ratio_95_median</th>
+      <th>compact_ratio_95_p90</th>
+      <th>accepted_covered_95</th>
+      <th>lost_by_matching_95</th>
+      <th>accepted_same_class_iou_05</th>
+      <th>detected</th>
+      <th>TP</th>
+      <th>FP</th>
+      <th>FN</th>
+      <th>precision</th>
+      <th>recall</th>
+      <th>f1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>FINAL+hsv_histogram</td>
+      <td>cone</td>
+      <td>7</td>
+      <td>7</td>
+      <td>7</td>
+      <td>1.000</td>
+      <td>1.000</td>
+      <td>7</td>
+      <td>1.000</td>
+      <td>0</td>
+      <td>493.425</td>
+      <td>3.633</td>
+      <td>5.479</td>
+      <td>7</td>
+      <td>0</td>
+      <td>5</td>
+      <td>2</td>
+      <td>2</td>
+      <td>11054</td>
+      <td>5</td>
+      <td>0.000</td>
+      <td>0.286</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <td>FINAL+hsv_histogram</td>
+      <td>roadworks</td>
+      <td>3</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.000</td>
+      <td>0.667</td>
+      <td>1</td>
+      <td>0.000</td>
+      <td>1</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>0</td>
+      <td>2</td>
+      <td>0</td>
+      <td>0</td>
+      <td>788</td>
+      <td>3</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>0.000</td>
+    </tr>
+    <tr>
+      <td>FINAL+hsv_histogram</td>
+      <td>vertical_pannel</td>
+      <td>63</td>
+      <td>27</td>
+      <td>25</td>
+      <td>0.429</td>
+      <td>0.365</td>
+      <td>28</td>
+      <td>0.964</td>
+      <td>1</td>
+      <td>252.099</td>
+      <td>3.045</td>
+      <td>5.399</td>
+      <td>27</td>
+      <td>0</td>
+      <td>19</td>
+      <td>17</td>
+      <td>17</td>
+      <td>12943</td>
+      <td>46</td>
+      <td>0.001</td>
+      <td>0.270</td>
+      <td>0.003</td>
+    </tr>
+  </tbody>
+</table>
+<img src="summary.png"><img src="references.png">
+<h3>train/camera_1C0FAF5250E2/bfee1df1-e99b-478e-86a1-b0b6df558d58.jpg</h3><img loading="lazy" src="images/000_bfee1df1-e99b-478e-86a1-b0b6df558d58.png">
+<h3>train/camera_1C0FAF57D6F8/5adef0f1-c8ac-45d9-b9b8-a64874773e39.jpg</h3><img loading="lazy" src="images/001_5adef0f1-c8ac-45d9-b9b8-a64874773e39.png">
+<h3>train/camera_1C0FAF5CA7B6/08ce4cdf-a3cd-4692-b760-f27f65c131e4.jpg</h3><img loading="lazy" src="images/002_08ce4cdf-a3cd-4692-b760-f27f65c131e4.png">
+<h3>train/camera_1C0FAF5CC14D/24012e30-4034-46b1-baaa-b7633d873a01.jpg</h3><img loading="lazy" src="images/003_24012e30-4034-46b1-baaa-b7633d873a01.png">
+<h3>train/camera_1C0FAF5250E2/b327e871-3901-41de-b7c6-871491f3a720.jpg</h3><img loading="lazy" src="images/004_b327e871-3901-41de-b7c6-871491f3a720.png">
+<h3>train/camera_1C0FAF57D6F8/77e685a2-1fac-4897-ac52-bd93e861f2c7.jpg</h3><img loading="lazy" src="images/005_77e685a2-1fac-4897-ac52-bd93e861f2c7.png">
+<h3>train/camera_1C0FAF5CA7B6/cb8c7db0-1f8e-4ec8-ae81-684045ccbcf2.jpg</h3><img loading="lazy" src="images/006_cb8c7db0-1f8e-4ec8-ae81-684045ccbcf2.png">
+<h3>train/camera_1C0FAF5CC14D/483a20d0-c966-4542-8ba0-3d27dce72262.jpg</h3><img loading="lazy" src="images/007_483a20d0-c966-4542-8ba0-3d27dce72262.png">
+<h3>train/camera_1C0FAF5250E2/9f2f319e-ddee-4c67-975d-a1f0204afcf0.jpg</h3><img loading="lazy" src="images/008_9f2f319e-ddee-4c67-975d-a1f0204afcf0.png">
+<h3>train/camera_1C0FAF57D6F8/7fe495cc-1531-4be2-aad9-eaee6590c192.jpg</h3><img loading="lazy" src="images/009_7fe495cc-1531-4be2-aad9-eaee6590c192.png">
+<h3>train/camera_1C0FAF5CA7B6/4ef5af3c-972f-47fe-8e98-bac636a1189c.jpg</h3><img loading="lazy" src="images/010_4ef5af3c-972f-47fe-8e98-bac636a1189c.png">
+<h3>train/camera_1C0FAF5CC14D/e3695a01-09d4-4cea-a571-7a461b380c04.jpg</h3><img loading="lazy" src="images/011_e3695a01-09d4-4cea-a571-7a461b380c04.png"></html>
