@@ -1,8 +1,9 @@
-"""Preprocessing shared by every feature: noise reduction and color space conversions.
+"""Preprocessing shared by every feature: noise reduction, color space conversions, orange mask.
 
 Works the same on Vistas template crops and full scene images.
 """
 import cv2
+import numpy as np
 
 # NLM parameters: h = filter strength for luminance, h_color = for color components
 H = 5
@@ -41,3 +42,18 @@ def to_gray(img):
     """
     return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+
+
+# Orange in Lab: hue angle atan2(b*, a*) in ORANGE_HUE degrees and chroma sqrt(a*^2 + b*^2) > ORANGE_MIN_CHROMA.
+# Chosen on training-split cone boxes: catches the most cone pixels per background pixel. (The Vistas templates
+# were built with hue 42-75, chroma > 30, which misses the redder cones in this dataset.)
+ORANGE_HUE = (25, 65)
+ORANGE_MIN_CHROMA = 15
+
+
+def orange_mask(img, hue=ORANGE_HUE, min_chroma=ORANGE_MIN_CHROMA):
+    """True where a uint8 BGR image is orange."""
+    lab = to_lab(img).astype(np.float32)
+    a, b = lab[..., 1] - 128, lab[..., 2] - 128
+    angle = np.degrees(np.arctan2(b, a))
+    return (angle >= hue[0]) & (angle <= hue[1]) & (np.hypot(a, b) > min_chroma)

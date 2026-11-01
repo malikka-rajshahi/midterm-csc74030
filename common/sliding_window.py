@@ -4,10 +4,13 @@ Window shape per class = median height / width of that class's training boxes. W
 high percentile of the training box widths, growing by SCALE_STEP each time (the slides' "multiple scales").
 Histograms of all windows come from an integral histogram, so each window costs a few lookups per bin.
 """
+import cv2
 import numpy as np
 
 SCALE_STEP = 1.25
 SIZE_PERCENTILES = (10, 90)
+# Prescreen: on training images, 2% orange keeps ~1.6% of cone windows while 89% of cones keep a window with IoU >= 0.5
+MIN_ORANGE_FRACTION = 0.02
 
 
 def window_sizes(boxes, step=SCALE_STEP, percentiles=SIZE_PERCENTILES):
@@ -16,8 +19,11 @@ def window_sizes(boxes, step=SCALE_STEP, percentiles=SIZE_PERCENTILES):
     boxes: that class's training boxes as [x, y, w, h] rows (the dataset's bbox_coords).
     """
     w, h = np.asarray(boxes, dtype=float)[:, 2:].T
-    aspect = np.median(h / w)
-    low, high = np.percentile(w, percentiles)
+    return size_range(*np.percentile(w, percentiles), np.median(h / w), step)
+
+
+def size_range(low, high, aspect, step=SCALE_STEP):
+    """(width, height) of windows from width low up to (at least) high, growing by step; height = aspect * width."""
     widths = low * step ** np.arange(int(np.ceil(np.log(high / low) / np.log(step))) + 1)
     sizes = [(max(1, round(width)), max(1, round(width * aspect))) for width in widths]
     return list(dict.fromkeys(sizes))  # drop repeats from rounding, keep order
@@ -62,7 +68,20 @@ def window_histograms(img, boxes, bins, channel_max):
     for c, (n_bins, max_val) in enumerate(zip(bins, channel_max)):
         bin_index = img[..., c].astype(np.int32) * n_bins // max_val
         for b in range(n_bins):
-            integral = np.pad((bin_index == b).astype(np.int32), ((1, 0), (1, 0))).cumsum(0).cumsum(1)
+            integral = cv2.integral((bin_index == b).astype(np.uint8))
             hists[:, col] = (integral[y1, x1] - integral[y0, x1] - integral[y1, x0] + integral[y0, x0]) / area
             col += 1
     return hists
+
+
+def box_fractions(mask, boxes):
+    """Fraction of True pixels of a boolean mask inside each (x0, y0, x1, y1) box, from one integral image."""
+    x0, y0, x1, y1 = np.asarray(boxes).T
+    integral = cv2.integral(mask.astype(np.uint8))
+    return (integral[y1, x1] - integral[y0, x1] - integral[y1, x0] + integral[y0, x0]) / ((x1 - x0) * (y1 - y0))
+
+
+def prescreen(mask, boxes, min_fraction=MIN_ORANGE_FRACTION):
+    """Keep only boxes where at least min_fraction of the pixels are True in mask (e.g. preprocessing.orange_mask)."""
+    boxes = np.asarray(boxes)
+    return boxes[box_fractions(mask, boxes) >= min_fraction]

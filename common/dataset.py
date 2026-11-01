@@ -1,4 +1,4 @@
-"""Load the Roadwork Cones dataset from Hugging Face.
+"""Load the Roadwork Cones dataset from Hugging Face, and the NYC street-level images.
 
 https://huggingface.co/datasets/StarLineResearch/Roadwork_Cones_Dataset
 """
@@ -14,6 +14,14 @@ REPO_ID = "StarLineResearch/Roadwork_Cones_Dataset"
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 DATASET_DIR = DATA_DIR / "roadwork_cones_dataset"
 SPLIT_FILE = DATA_DIR / "split.json"
+NYC_DIR = Path(__file__).resolve().parent.parent / "nyc_data"
+# NYC window sizes: there are no boxes to measure, so a fixed width range per class, up to a quarter of the 1024 px
+# image width. Cone windows are twice as tall as wide, sign windows square. Windows slide by a quarter of their width.
+# Sign windows start at 48 px: smaller ones let tiny all-orange patches (lights, buses, bike frames) beat whole objects
+# in NMS. Cone windows start at 16 px, since most NYC cones are narrower than 48 px.
+NYC_WIDTHS = {"cone": (16, 256), "sign": (48, 256)}
+NYC_ASPECTS = {"cone": 2.0, "sign": 1.0}
+NYC_STRIDE_FRACTION = 0.25
 SEED = 42
 # Dataset label -> our class (the Vistas template classes). vertical_pannel has no templates, so it is dropped.
 LABEL_MAP = {"cone": "cone", "roadworks": "sign"}
@@ -52,3 +60,9 @@ def split_data(df, val_ratio=0.2, seed=SEED):
              "test": test_images}
     SPLIT_FILE.write_text(json.dumps(split, indent=1))
     return split
+
+
+
+def nyc_images():
+    """All 300 NYC street-level image paths (relative to NYC_DIR). Their annotations are not used."""
+    return sorted(str(p.relative_to(NYC_DIR)) for p in (NYC_DIR / "images").glob("*.jpg"))
